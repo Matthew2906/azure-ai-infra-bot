@@ -1,0 +1,63 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+
+variables:
+  terraformVersion: '1.14.6'
+
+
+stages:
+  - stage: Generate
+    displayName: 'Generate Terraform with AI'
+    jobs:
+      - job: GenerateInfra
+        displayName: 'Run Azure OpenAI Script'
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.x'
+            displayName: 'Set up Python'
+
+          - script: |
+              pip install openai
+            displayName: 'Install Python dependencies'
+
+          - script: |
+              python scripts/generate_infra.py
+            displayName: 'Generate Terraform config'
+            env:
+              AZURE_OPENAI_ENDPOINT: $(AZURE_OPENAI_ENDPOINT)
+              AZURE_OPENAI_KEY: $(AZURE_OPENAI_KEY)
+              ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+              ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+              ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+              ARM_TENANT_ID: $(ARM_TENANT_ID)
+
+  - stage: Deploy
+    displayName: 'Deploy Infrastructure'
+    dependsOn: Generate
+    jobs:
+      - job: TerraformApply
+        displayName: 'Terraform Plan and Apply'
+        steps:
+          - task: TerraformInstaller@1
+            inputs:
+              terraformVersion: $(terraformVersion)
+            displayName: 'Install Terraform'
+
+          - script: |
+              cd terraform
+              terraform init
+              terraform plan
+              terraform apply -auto-approve
+            displayName: 'Terraform Init, Plan and Apply'
+            env:
+              ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+              ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+              ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+              ARM_TENANT_ID: $(ARM_TENANT_ID)
