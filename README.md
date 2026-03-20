@@ -6,7 +6,7 @@ This project bridges the gap between natural language and cloud infrastructure y
 
 ## Architecture
 
-user prompt --> azure openAI Gpt-4 --> Terraform HCL --> Azure DevOps piepline --> Azure Infrastructure
+user prompt --> azure openAI GPT-4o-mini --> Terraform HCL --> Azure DevOps piepline --> Azure Infrastructure
 
 ## Tech Stack
 
@@ -16,6 +16,22 @@ user prompt --> azure openAI Gpt-4 --> Terraform HCL --> Azure DevOps piepline -
 -**CI/CD** Azure DevOps Pipelines (Yaml)
 -**Scripting** python
 -**Version control:** Git / GitHUb
+
+Example prompt:
+Create a storage account named teststore in East US in a resource group called test-rg
+Generated output:
+hclresource "azurerm_resource_group" "example" {
+  name     = "test-rg"
+  location = "East US"
+}
+
+resource "azurerm_storage_account" "example" {
+  name                     = "teststore"
+  resource_group_name      = azurerm_resource_group.example.name
+  location                 = azurerm_resource_group.example.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
 
 ## Project Structure
 ...
@@ -49,7 +65,7 @@ azure-ai-infra-bot/
 ## Prerequisites 
 
 -Azure subscription
--Azure Openai resource with GPT-4 deployment
+-Azure Openai resource with GPT-4o-mini deployment
 -Terraform >= 1.0
 -python >= 3.x
 -Azure CLI
