@@ -52,7 +52,12 @@ def run_terraform_plan():
     return result.returncode
 
 if __name__ == "__main__":
-    prompt = input("Describe the Azure infrastructure you want to create: ")
+    prompt = os.environ.get("INFRA_PROMPT")
+    if prompt:
+        print(f"Using prompt from environment: {prompt}\n")
+    else:
+        prompt = input("Describe the Azure infrastructure you want to create: ")
+    
     print("\nGenerating Terraform configuration...\n")
     tf_code = generate_terraform(prompt)
     print("Generated Terraform:\n")
