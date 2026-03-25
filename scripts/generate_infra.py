@@ -32,10 +32,10 @@ def generate_terraform(prompt):
 def save_terraform(tf_code, filename="generated.tf"):
     """Save generated Terraform code to the terraform folder"""
     script_dir = os.path.dirname(os.path.abspath(__file__))
-terraform_dir = os.path.abspath(os.path.join(script_dir, "..", "terraform"))
-os.makedirs(terraform_dir, exist_ok=True)
+    terraform_dir = os.path.abspath(os.path.join(script_dir, "..", "terraform"))
+    os.makedirs(terraform_dir, exist_ok=True)
 
-output_path = os.path.join(terraform_dir, filename)
+    output_path = os.path.join(terraform_dir, filename)
     with open(output_path, "w") as f:
         f.write(tf_code)
     print(f"Terraform config saved to {output_path}")
@@ -43,7 +43,8 @@ output_path = os.path.join(terraform_dir, filename)
 def run_terraform_plan():
     """Run terraform plan on the generated config"""
     script_dir = os.path.dirname(os.path.abspath(__file__))
-terraform_dir = os.path.abspath(os.path.join(script_dir, "..", "terraform"))
+    terraform_dir = os.path.abspath(os.path.join(script_dir, "..", "terraform"))
+    
     result = subprocess.run(
         ["terraform", "plan"],
         cwd=terraform_dir,
@@ -51,10 +52,13 @@ terraform_dir = os.path.abspath(os.path.join(script_dir, "..", "terraform"))
         text=True
     )
     print(result.stdout)
+
     if result.returncode != 0:
         print("Terraform plan failed:")
         print(result.stderr)
+
     return result.returncode
+        
 
 if __name__ == "__main__":
     prompt = os.environ.get("INFRA_PROMPT")
